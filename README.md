@@ -1,188 +1,99 @@
-<div align="center">
+# 🧬 Neon CV Analyser
 
-# 🧬 AI CV Analyser — Neon Edition
+An AI-powered CV/resume analyser built with **Streamlit**, a **scikit-learn**
+text classification model, and a **SQLite**-backed login/register system —
+wrapped in a Neon Dark/Light themed UI.
 
-### AI-powered resume screening with a neon-drenched UI ✨
-
-An end-to-end machine learning + web app that reads a CV, predicts the best-fit job category, extracts matching skills, and shows it all in a glowing Dark/Light neon interface — with secure login & registration built in.
-
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
-[![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-neon?style=for-the-badge&color=39FF14)](LICENSE)
-
-[🚀 Live Demo](#-getting-started) · [📂 Repository](https://github.com/alibutt2882/AI_CV_Analyser) · [🐛 Report a Bug](https://github.com/alibutt2882/AI_CV_Analyser/issues) · [✨ Request a Feature](https://github.com/alibutt2882/AI_CV_Analyser/issues)
-
-</div>
+Developed by **Ali Haider Butt**.
 
 ---
 
-## 📖 About The Project
+## What's included
 
-**AI CV Analyser** takes a resume (PDF, DOCX, TXT, or pasted text), runs it through a custom-trained **TF-IDF + Logistic Regression** model, and tells you:
-
-- 🎯 the most likely job category the CV belongs to
-- 📊 the top-5 closest matching categories with confidence scores
-- 🛠️ which known professional/technical skills it detected
-- 📈 quick CV stats — word count, contact info detection, and more
-
-All wrapped in a **neon-themed** Streamlit interface with a **Dark Neon / Light Neon** toggle, and gated behind a proper **email + username + password** login system backed by SQLite.
-
----
-
-## 🌟 Features
-
-| | |
+| File | Purpose |
 |---|---|
-| 🔐 **Secure Auth** | Register & log in with email + username + password. Passwords are salted and SHA-256 hashed — never stored in plain text. |
-| 📄 **Multi-format CV Input** | Upload `.pdf`, `.docx`, `.txt`, or just paste your resume text directly. |
-| 🎯 **ML-Powered Category Prediction** | Trained on 3,400+ real resumes across **45 job categories**, ~77% test accuracy. |
-| 🛠️ **Skill Matching** | Auto-detects and highlights ~3,000+ known professional/technical skills in the CV. |
-| 📊 **CV Insights** | Word count, character count, and email/phone detection at a glance. |
-| 🎨 **Neon Dark/Light Theme** | A consistent glowing neon UI across every page, switchable in Settings. |
-| ⚡ **Single-file App** | The entire application lives in one `app.py` — easy to read, run, and deploy. |
+| `app.py` | Main Streamlit app (routing, login/register, analyser, about, settings) |
+| `database.py` | SQLite user auth (register/login, salted+hashed passwords) |
+| `model_utils.py` | Loads the trained model, extracts text from PDF/DOCX/TXT, predicts category, matches skills |
+| `theme.py` | Neon Dark/Light CSS theme injected on every page |
+| `train_model.py` | Script used to train the classifier from the 3 CSV datasets |
+| `models/` | Trained artifacts (TF-IDF vectorizer, classifier, label list, skills vocabulary, metrics) — **already trained**, no need to retrain |
+| `data/` | The 3 source CSVs used for training |
+| `requirements.txt` | Python dependencies |
 
----
+## Model details
 
-## 🧠 How the Model Was Trained
+- **Data**: Combined `UpdatedResumeDataSet.csv` + `Resume.csv` (~3,441 cleaned resumes, 45 job categories). `resume_data.csv` was used to build a master vocabulary of ~3,186 known skills for skill-matching.
+- **Pipeline**: TF-IDF (unigrams+bigrams, 6000 features) → Logistic Regression (`class_weight="balanced"`).
+- **Test accuracy**: ~77% across 45 categories (see `models/metrics.json`).
 
-```
-📂 Data sources
- ├── UpdatedResumeDataSet.csv   → resume text + job category
- ├── Resume.csv                 → resume text + job category
- └── resume_data.csv            → used to build the master skills vocabulary
-
-🔧 Pipeline
- Raw Text → Clean & Normalize → TF-IDF (uni+bigrams, 6000 features)
-          → Logistic Regression (class-weighted) → 45-category classifier
-```
-
-| Metric | Value |
-|---|---|
-| Resumes trained on | **3,441** |
-| Job categories | **45** |
-| Test accuracy | **~77%** |
-| Skills vocabulary size | **~3,186** |
-
----
-
-## 🛠️ Tech Stack
-
-- **Frontend/App:** [Streamlit](https://streamlit.io/)
-- **ML:** [scikit-learn](https://scikit-learn.org/), [pandas](https://pandas.pydata.org/), [numpy](https://numpy.org/)
-- **Database:** SQLite (built-in, zero setup)
-- **File Parsing:** PyPDF2, python-docx
-- **Styling:** Custom neon CSS injected directly into Streamlit
-
----
-
-## 🚀 Getting Started
-
-### 1️⃣ Clone the repo
-
-```bash
-git clone https://github.com/alibutt2882/AI_CV_Analyser.git
-cd AI_CV_Analyser
-```
-
-### 2️⃣ Create a virtual environment (recommended)
-
-```bash
-python -m venv venv
-venv\Scripts\activate        # Windows
-source venv/bin/activate     # macOS / Linux
-```
-
-### 3️⃣ Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4️⃣ Run the app 🚀
-
-```bash
-streamlit run app.py
-```
-
-Then open **http://localhost:8501** in your browser 🎉
-
-> ⚠️ **Note:** Always use the *same* Python environment for both training (`train_model.py`) and running the app (`streamlit run app.py`). Mixing environments (e.g. Anaconda vs. a standalone Python) can cause model-loading version errors.
-
-### 🔁 (Optional) Retrain the model
-
-The trained model is already included in `models/`, but if you want to retrain from scratch:
+If you want to retrain (e.g. after adding more data), just run:
 
 ```bash
 python train_model.py
 ```
 
----
+This regenerates everything inside `models/`.
 
-## 📸 Screenshots
+## How to run
 
-> *Add your own screenshots/GIFs here once deployed — Login page, CV Analyser results, and the neon theme toggle in action look great in a README!*
+1. **Install dependencies** (Python 3.10+ recommended):
 
----
-
-## 🗂️ Project Structure
-
-```
-AI_CV_Analyser/
-├── app.py               # 🧬 The entire app: auth, theme, model, UI
-├── train_model.py        # 🏋️ One-time script to train the classifier
-├── requirements.txt       # 📦 Pinned dependencies
-├── models/                 # 🤖 Trained model artifacts
-│   ├── tfidf_vectorizer.pkl
-│   ├── category_model.pkl
-│   ├── label_classes.pkl
-│   ├── skills_master.pkl
-│   └── metrics.json
-├── data/                    # 📊 Training datasets
-└── README.md
+```bash
+pip install -r requirements.txt
 ```
 
----
+2. **Run the app**:
 
-## 🗺️ Roadmap
+```bash
+streamlit run app.py
+```
 
-- [ ] 📈 Add a "Model Info" page with full per-category precision/recall
-- [ ] ☁️ One-click deploy button (Streamlit Community Cloud)
-- [ ] 🌐 Multi-language resume support
-- [ ] 🧾 Downloadable PDF analysis report
-- [ ] 🔑 OAuth login (Google/GitHub)
+3. Open the URL Streamlit prints (usually `http://localhost:8501`).
 
-Have an idea? [Open an issue](https://github.com/alibutt2882/AI_CV_Analyser/issues) 💡
+4. **Register** a new account (username + email + password), then **log in**
+   with your email + password.
 
----
+5. Go to **CV Analyser**, upload a PDF/DOCX/TXT resume (or paste text), and
+   click **Analyse CV** to see:
+   - the predicted job category + confidence
+   - top-5 matching categories chart
+   - matched skills as neon badges
+   - basic CV stats (word count, email/phone detection)
 
-## 🤝 Contributing
+6. Use **Settings** in the sidebar to switch between **Dark Neon** and
+   **Light Neon** themes, or to log out.
 
-Contributions are welcome! 🙌
+7. Check the **About App** page for app details and developer info.
 
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## Notes
 
----
+- `users.db` (SQLite) is created automatically on first run in the project
+  folder — it stores usernames, emails, salts, and SHA-256 password hashes
+  (never plain-text passwords).
+- The neon theme is applied globally via injected CSS in `theme.py`, so it
+  stays consistent across the login, register, analyser, about, and settings
+  pages.
+- The classifier is a demo-grade model (77% accuracy on 45 fine-grained
+  categories) — good enough to show meaningful predictions, but for
+  production use you'd want more labeled data per category and possibly a
+  transformer-based embedding model.
+  #############################################################
+# {cd "C:\Users\REHMAT COMPUTERS\Downloads\neon_cv_analyser"
 
-## 📄 License
+# create a clean virtual environment (use whichever python you'll run the app with)
+python -m venv venv
+venv\Scripts\activate
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
+# install the pinned dependencies into it
+pip install -r requirements.txt
 
----
+# delete the old pickle files (they were built with a different sklearn version)
+del models\category_model.pkl
+del models\tfidf_vectorizer.pkl
 
-## 👨‍💻 Developer
+# retrain inside this venv, so the new .pkl files match this venv's sklearn version
+python train_model.py
 
-**Ali Haider Butt**
-
-[![GitHub](https://img.shields.io/badge/GitHub-alibutt2882-181717?style=for-the-badge&logo=github)](https://github.com/alibutt2882)
-
-<div align="center">
-
-### ⭐ If you found this project useful, consider giving it a star!
-
-</div>
+# run the app with the SAME venv
+streamlit run app.py}
